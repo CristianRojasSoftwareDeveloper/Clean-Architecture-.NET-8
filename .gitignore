@@ -1,0 +1,61 @@
+######################################################################
+## .gitignore para proyectos .NET 8 en Visual Studio 2022
+##
+## Este archivo ignora archivos y directorios generados automáticamente
+## por la compilación, configuración personal y herramientas locales.
+##
+## Se utiliza la convención de «identificador» para nombrar elementos
+## técnicos en la documentación (los identificadores se declaran sin
+## comillas angulares en el código).
+######################################################################
+
+# ==========================
+# Archivos y Configuraciones del Usuario
+# ==========================
+# Ignorar archivos de configuración personal de Visual Studio
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ==========================
+# Directorios de Compilación y Resultados
+# ==========================
+# Directorios generados al compilar el proyecto
+bin/
+obj/
+
+# Resultados de pruebas (si se generan)
+TestResults/
+
+# Artifacts generados por procesos de integración o compilación
+artifacts/
+
+# ==========================
+# Directorios y Archivos de Visual Studio
+# ==========================
+# Configuraciones locales y cachés de Visual Studio
+.vs/
+
+# ==========================
+# Archivos con Información Sensible o Específica de Entorno
+# ==========================
+# IMPORTANTE: Esta regla ignora todos los archivos que finalicen en «settings.json».
+# Verifique que no se ignoren archivos de configuración esenciales (por ejemplo, appsettings.json).
+*settings.json
+
+# ==========================
+# Opcional: Herramientas y Add-ons
+# ==========================
+# Las siguientes reglas corresponden a herramientas opcionales.
+# Descomente si decide integrarlas en su flujo de trabajo.
+
+## ReSharper (herramienta para mejorar la calidad del código en .NET)
+# _ReSharper*/
+# *.[Rr]e[Ss]harper
+# *.DotSettings.user
+
+## Otras herramientas (descomente si se utilizan)
+# node_modules/         # Para proyectos que incluyan Node.js
+# publish/              # Archivos generados en procesos de publicación
