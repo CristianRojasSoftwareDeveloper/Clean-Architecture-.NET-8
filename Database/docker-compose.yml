@@ -1,0 +1,39 @@
+# Configuración de registro predeterminada para el contenedor.
+x-logging: &default-logging
+  driver: 'json-file' # Controlador de registro que almacena los registros en formato JSON.
+  options:
+    max-size: '50m' # Tamaño máximo de archivo de registro (50 MB).
+    max-file: '5' # Número máximo de archivos de registro antes de rotar.
+
+# Definición de servicios.
+services:
+
+  database-service:
+    build: . # Utiliza el contexto actual para construir la imagen del contenedor.
+    image: ${DATABASE_SERVICE_NAME}:17 # Etiqueta de la imagen.
+    container_name: ${DATABASE_SERVICE_NAME}_container # Nombre del contenedor.
+    restart: always # Reinicia automáticamente el contenedor en caso de fallo.
+    logging: *default-logging # Utiliza la configuración de registro predeterminada.
+    environment:
+      - LANG=${LOCALE} # Establece el entorno del contenedor con la variable LANG.
+      - POSTGRES_USER=${POSTGRES_USER} # Nombre de usuario de PostgreSQL.
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD} # Contraseña del usuario de PostgreSQL.
+      - POSTGRES_DB=${POSTGRES_DB} # Nombre de la base de datos.
+      - POSTGRES_INITDB_ARGS=${POSTGRES_INITDB_ARGS} # Argumentos de inicialización de PostgreSQL.
+    ports:
+      - ${DATABASE_SERVICE_EXPOSED_PORT}:${DATABASE_SERVICE_EXPOSED_PORT} # Database Port
+    # volumes:
+    #   - postgre-sql_data:/var/lib/postgresql/data # Conserva los datos de la base de datos entre distintas versiones del contenedor.
+    #   #   - ./db-container_initializer.sql:/docker-entrypoint-initdb.d/database_initializer.sql # Carga el script de inicialización de la base de datos al contenedor. Importante: Solo se utiliza para inicializar la base de datos si "/var/lib/postgresql/data" está vacío.
+    networks:
+      - web-system-network # Asigna el contenedor a la red denominada "web-system-network".
+
+# Definición de redes.
+networks:
+  web-system-network:
+    name: web-system-network # Nombre de la red utilizada para conectar el contenedor a otros servicios o contenedores.
+
+# # Definición de volúmenes.
+# volumes:
+#   postgre-sql_data:
+#     name: web-system-network_postgre-sql_data # Nombre del volúmen creado para conservar los datos entre distintas instancias del contenedor.

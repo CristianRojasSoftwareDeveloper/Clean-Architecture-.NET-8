@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Components\SharedKernel.Application\SharedKernel.Application.csproj" />
+    <ProjectReference Include="..\Components\SystemLogs.Application\SystemLogs.Application.csproj" />
+    <ProjectReference Include="..\Components\SystemLogs.Infrastructure\SystemLogs.Infrastructure.csproj" />
+    <ProjectReference Include="..\Components\Users.Application\Users.Application.csproj" />
+    <ProjectReference Include="..\Components\Users.Infrastructure\Users.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
