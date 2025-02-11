@@ -11,27 +11,27 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Components", "Components", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedKernel", "SharedKernel", "{681711AD-1973-488F-A16C-EF355013F9D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.Application", "Projects\System\Components\SharedKernel.Application\SharedKernel.Application.csproj", "{3CDBEAF5-552F-46E7-BE3D-15B2DD7EE00D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.Application", "Source\System\Components\SharedKernel.Application\SharedKernel.Application.csproj", "{3CDBEAF5-552F-46E7-BE3D-15B2DD7EE00D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.Domain", "Projects\System\Components\SharedKernel.Domain\SharedKernel.Domain.csproj", "{8170A5D4-D4FC-45BA-BFBD-6D17CBEDD4B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.Domain", "Source\System\Components\SharedKernel.Domain\SharedKernel.Domain.csproj", "{8170A5D4-D4FC-45BA-BFBD-6D17CBEDD4B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.Infrastructure", "Projects\System\Components\SharedKernel.Infrastructure\SharedKernel.Infrastructure.csproj", "{0699B776-504C-4F27-AA17-A31405D2C13B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedKernel.Infrastructure", "Source\System\Components\SharedKernel.Infrastructure\SharedKernel.Infrastructure.csproj", "{0699B776-504C-4F27-AA17-A31405D2C13B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Users", "Users", "{A4BAEBA3-046C-4DC4-B8DD-5D0000D357A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Users.Application", "Projects\System\Components\Users.Application\Users.Application.csproj", "{87C0A13F-5ACD-43C8-8DC2-34E667B2EDB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Users.Application", "Source\System\Components\Users.Application\Users.Application.csproj", "{87C0A13F-5ACD-43C8-8DC2-34E667B2EDB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Users.Infrastructure", "Projects\System\Components\Users.Infrastructure\Users.Infrastructure.csproj", "{688E9FB3-ED6B-4082-BE63-0D6E5504063A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Users.Infrastructure", "Source\System\Components\Users.Infrastructure\Users.Infrastructure.csproj", "{688E9FB3-ED6B-4082-BE63-0D6E5504063A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "Projects\System\API\API.csproj", "{2273F9B7-27BF-4DA4-9937-A32700BAE52F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "Source\System\API\API.csproj", "{2273F9B7-27BF-4DA4-9937-A32700BAE52F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SystemLogs", "SystemLogs", "{12A49C59-C975-4E39-A82C-D2DA25486E96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemLogs.Infrastructure", "Projects\System\Components\SystemLogs.Infrastructure\SystemLogs.Infrastructure.csproj", "{935F824D-E670-4FCC-9965-49B8E0F3E21C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemLogs.Infrastructure", "Source\System\Components\SystemLogs.Infrastructure\SystemLogs.Infrastructure.csproj", "{935F824D-E670-4FCC-9965-49B8E0F3E21C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemLogs.Application", "Projects\System\Components\SystemLogs.Application\SystemLogs.Application.csproj", "{73EFED4A-103F-40A5-B6F0-6152933C4381}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemLogs.Application", "Source\System\Components\SystemLogs.Application\SystemLogs.Application.csproj", "{73EFED4A-103F-40A5-B6F0-6152933C4381}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication", "Projects\Presentation\ConsoleApplication\ConsoleApplication.csproj", "{3CD3716D-CE60-48D9-AC06-DE5EF89A6E68}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication", "Source\Presentation\ConsoleApplication\ConsoleApplication.csproj", "{3CD3716D-CE60-48D9-AC06-DE5EF89A6E68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

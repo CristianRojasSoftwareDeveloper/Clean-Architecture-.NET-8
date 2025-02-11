@@ -81,57 +81,50 @@ def add_license_header_to_cs_files(root_directory: str) -> None:
     # Recorre recursivamente el directorio raíz y obtiene subdirectorios y archivos
     for current_directory, subdirectories, files in os.walk(root_directory):
         # Excluye carpetas "obj" y "bin" para evitar archivos compilados o temporales
-        subdirectories[:] = [directory for directory in subdirectories if directory not in ("obj", "bin")]
+        subdirectories[:] = [directory for directory in subdirectories if directory not in ("obj", "bin")];
 
         # Itera sobre los archivos en el directorio actual
         for file_name in files:
             # Verifica que el archivo tenga extensión ".cs", si no, continúa con el siguiente
             if not file_name.lower().endswith(".cs"):
-                continue
+                continue;
 
             # Construye la ruta completa del archivo
-            full_path = os.path.join(current_directory, file_name)
+            full_path = os.path.join(current_directory, file_name);
 
             # Obtiene la ruta relativa para mostrarla en la salida (hace más legible el mensaje)
-            relative_path = f"...{os.sep}{os.path.relpath(full_path, root_directory)}"
+            relative_path = f"...{os.sep}{os.path.relpath(full_path, root_directory)}";
 
             try:
                 # Abre el archivo en modo lectura y obtiene su contenido
                 with open(full_path, "r", encoding="utf-8") as file:
-                    file_content = file.read()
+                    file_content = file.read();
             except Exception as read_error:
                 # Si hay un error al leer el archivo, muestra un mensaje y pasa al siguiente
-                print(f"❌ No se pudo leer {relative_path}: {read_error}")
-                continue
+                print(f"❌ No se pudo leer {relative_path}: {read_error}");
+                continue;
 
             # Verifica si la cabecera de licencia ya está presente en el archivo
             if "#region GPL v3 License Header" in file_content:
                 # Si la cabecera ya existe, notifica y continúa con el siguiente archivo
-                print(f"✔️ Licencia ya presente en {relative_path}")
-                continue
+                print(f"✔️ Licencia ya presente en {relative_path}");
+                continue;
 
             # Si la cabecera no está presente, notifica que se agregará
-            print(f"➕ Agregando licencia a {relative_path}")
+            print(f"➕ Agregando licencia a {relative_path}");
 
             try:
                 # Abre el archivo en modo escritura y agrega la cabecera al inicio
                 with open(full_path, "w", encoding="utf-8") as file:
-                    file.write(LICENSE_HEADER + "\n" + file_content)
+                    file.write(LICENSE_HEADER + "\n" + file_content);
             except Exception as write_error:
                 # Si hay un error al escribir en el archivo, muestra un mensaje de error
-                print(f"❌ No se pudo escribir en {relative_path}: {write_error}")
+                print(f"❌ No se pudo escribir en {relative_path}: {write_error}");
 
 if __name__ == "__main__":
     # Obtiene la ruta del directorio donde se encuentra este script
-    base_directory = os.path.dirname(os.path.abspath(__file__))
-
-    # Construye la ruta del subdirectorio "Projects" dentro del directorio base
-    projects_directory = os.path.join(base_directory, "Projects")
-
-    # Verifica si el directorio "Projects" existe antes de iniciar el proceso
-    if not os.path.isdir(projects_directory):
-        print(f"❌ El directorio 'Projects' no existe en {base_directory}")
-    else:
-        # Llama a la función para agregar la cabecera de licencia en los archivos C#
-        add_license_header_to_cs_files(projects_directory)
-        print("✅ Proceso completado.")
+    base_directory = os.path.dirname(os.path.abspath(__file__));
+    # Invoca a la función para agregar la cabecera de licencia en los archivos C#
+    add_license_header_to_cs_files(base_directory);
+    # Imprime un mensale en consola indicando el fin del proceso.
+    print("✅ Proceso completado.");
