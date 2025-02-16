@@ -54,77 +54,75 @@
 #endregion
 
 #endregion
-﻿using SharedKernel.Infrastructure.Configurations;
+using SharedKernel.Infrastructure.Configurations;
 using SharedKernel.Infrastructure.Services.Persistence.Entity_Framework.Contexts;
 using System.Collections.Concurrent;
 
-namespace SharedKernel.Infrastructure.Services.Persistence {
+namespace SharedKernel.Infrastructure.Services.Persistence;
 
+/// <summary>
+/// Proporciona métodos para inicializar la base de datos de forma centralizada y evitar la ejecución reiterada de la operación «EnsureCreated».
+/// </summary>
+/// <remarks>
+/// Debido a que el contexto de la base de datos depende de la configuración suministrada en el constructor de «ApplicationManager», no es posible
+/// ejecutar la inicialización de forma estática sin contar con dicha referencia. Esta clase permite que la operación «EnsureCreated» se realice
+/// únicamente una vez por cada configuración, evitando su ejecución en cada creación de una instancia de «ApplicationManager».
+/// 
+/// Para identificar de manera única cada base de datos se utiliza una clave basada en la configuración: si se utiliza un contexto en memoria, se emplea
+/// la clave «InMemory»; de lo contrario, se utiliza la cadena de conexión de PostgreSQL definida en «configuration.ConnectionStrings.PostgreSQL».
+/// </remarks>
+public static class DatabaseInitializer {
     /// <summary>
-    /// Proporciona métodos para inicializar la base de datos de forma centralizada y evitar la ejecución reiterada de la operación «EnsureCreated».
+    /// Almacena las claves de las bases de datos que ya han sido inicializadas.
     /// </summary>
     /// <remarks>
-    /// Debido a que el contexto de la base de datos depende de la configuración suministrada en el constructor de «ApplicationManager», no es posible
-    /// ejecutar la inicialización de forma estática sin contar con dicha referencia. Esta clase permite que la operación «EnsureCreated» se realice
-    /// únicamente una vez por cada configuración, evitando su ejecución en cada creación de una instancia de «ApplicationManager».
-    /// 
-    /// Para identificar de manera única cada base de datos se utiliza una clave basada en la configuración: si se utiliza un contexto en memoria, se emplea
-    /// la clave «InMemory»; de lo contrario, se utiliza la cadena de conexión de PostgreSQL definida en «configuration.ConnectionStrings.PostgreSQL».
+    /// Se utiliza un diccionario concurrente «_initializedDatabases» para garantizar que la inicialización se ejecute una sola vez por base de datos,
+    /// incluso en escenarios de alta concurrencia.
     /// </remarks>
-    public static class DatabaseInitializer {
-        /// <summary>
-        /// Almacena las claves de las bases de datos que ya han sido inicializadas.
-        /// </summary>
-        /// <remarks>
-        /// Se utiliza un diccionario concurrente «_initializedDatabases» para garantizar que la inicialización se ejecute una sola vez por base de datos,
-        /// incluso en escenarios de alta concurrencia.
-        /// </remarks>
-        private static readonly ConcurrentDictionary<string, bool> _initializedDatabases = new();
+    private static readonly ConcurrentDictionary<string, bool> _initializedDatabases = new();
 
-        /// <summary>
-        /// Asegura que la base de datos correspondiente a la configuración proporcionada se encuentre creada.
-        /// </summary>
-        /// <param name="configuration">La configuración de la aplicación, la cual define el tipo de contexto de base de datos a utilizar.</param>
-        /// <remarks>
-        /// <para>
-        /// El método determina una clave única basada en la configuración: si «configuration.InMemoryDbContext» es <c>true</c>, se utiliza la clave «InMemory»;
-        /// de lo contrario, se utiliza la cadena de conexión especificada en «configuration.ConnectionStrings.PostgreSQL».
-        /// </para>
-        /// <para>
-        /// Si la base de datos aún no ha sido inicializada (es decir, la clave no se encuentra en el diccionario «_initializedDatabases»), se crea una
-        /// instancia temporal del contexto correspondiente («InMemory_DbContext» o «PostgreSQL_DbContext») para ejecutar el método «EnsureCreated».
-        /// Una vez completada la inicialización, se registra la clave en el diccionario para evitar futuras ejecuciones de la operación.
-        /// </para>
-        /// <para>
-        /// Este enfoque es fundamental para evitar la ejecución reiterada de «EnsureCreated» en cada creación de «ApplicationManager», 
-        /// ya que el contexto de base de datos depende de la configuración proporcionada en tiempo de ejecución.
-        /// </para>
-        /// </remarks>
-        public static void EnsureCreated (ApplicationConfiguration configuration) {
-            // Define la clave según si se utiliza un contexto en memoria o PostgreSQL.
-            string key = configuration.InMemoryDbContext
-                ? "InMemory"
-                : configuration.ConnectionStrings.PostgreSQL;
+    /// <summary>
+    /// Asegura que la base de datos correspondiente a la configuración proporcionada se encuentre creada.
+    /// </summary>
+    /// <param name="configuration">La configuración de la aplicación, la cual define el tipo de contexto de base de datos a utilizar.</param>
+    /// <remarks>
+    /// <para>
+    /// El método determina una clave única basada en la configuración: si «configuration.InMemoryDbContext» es <c>true</c>, se utiliza la clave «InMemory»;
+    /// de lo contrario, se utiliza la cadena de conexión especificada en «configuration.ConnectionStrings.PostgreSQL».
+    /// </para>
+    /// <para>
+    /// Si la base de datos aún no ha sido inicializada (es decir, la clave no se encuentra en el diccionario «_initializedDatabases»), se crea una
+    /// instancia temporal del contexto correspondiente («InMemory_DbContext» o «PostgreSQL_DbContext») para ejecutar el método «EnsureCreated».
+    /// Una vez completada la inicialización, se registra la clave en el diccionario para evitar futuras ejecuciones de la operación.
+    /// </para>
+    /// <para>
+    /// Este enfoque es fundamental para evitar la ejecución reiterada de «EnsureCreated» en cada creación de «ApplicationManager», 
+    /// ya que el contexto de base de datos depende de la configuración proporcionada en tiempo de ejecución.
+    /// </para>
+    /// </remarks>
+    public static void EnsureCreated (ApplicationConfiguration configuration) {
+        // Define la clave según si se utiliza un contexto en memoria o PostgreSQL.
+        string key = configuration.InMemoryDbContext
+            ? "InMemory"
+            : configuration.ConnectionStrings.PostgreSQL;
 
-            // Verifica si la base de datos ya fue inicializada.
-            if (!_initializedDatabases.ContainsKey(key)) {
-                // Bloqueo para asegurar que la inicialización se realice solo una vez por clave.
-                lock (_initializedDatabases) {
-                    if (!_initializedDatabases.ContainsKey(key)) {
-                        // Crea una instancia temporal del contexto para ejecutar «EnsureCreated».
-                        using ApplicationDbContext dbContext = configuration.InMemoryDbContext
-                            ? new InMemory_DbContext()
-                            : new PostgreSQL_DbContext(configuration.ConnectionStrings.PostgreSQL);
+        // Verifica si la base de datos ya fue inicializada.
+        if (!_initializedDatabases.ContainsKey(key)) {
+            // Bloqueo para asegurar que la inicialización se realice solo una vez por clave.
+            lock (_initializedDatabases) {
+                if (!_initializedDatabases.ContainsKey(key)) {
+                    // Crea una instancia temporal del contexto para ejecutar «EnsureCreated».
+                    using ApplicationDbContext dbContext = configuration.InMemoryDbContext
+                        ? new InMemory_DbContext()
+                        : new PostgreSQL_DbContext(configuration.ConnectionStrings.PostgreSQL);
 
-                        // Inicializa la base de datos.
-                        dbContext.Database.EnsureCreated();
+                    // Inicializa la base de datos.
+                    dbContext.Database.EnsureCreated();
 
-                        // Registra en el diccionario que la base ya fue inicializada.
-                        _initializedDatabases.TryAdd(key, true);
-                    }
+                    // Registra en el diccionario que la base ya fue inicializada.
+                    _initializedDatabases.TryAdd(key, true);
                 }
             }
         }
     }
-
 }

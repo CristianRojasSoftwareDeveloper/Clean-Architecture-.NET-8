@@ -72,7 +72,7 @@ La configuración de la licencia (propiedades «extension_type», «marker» y �
 desde el módulo «license_info.py», centralizando su definición.
 
 Uso desde línea de comando:
-    regenerate_license_header_in_source_files.py --mode {insert-only,full-regeneration}
+    python regenerate_license_header_in_source_files.py
 """
 
 import os
@@ -191,22 +191,26 @@ def extract_existing_header(file_content: str, header_marker: str) -> Tuple[Opti
     content = "\n" + "".join(content_lines[header_end_index:])
     return preserved_lines, existing_header, content
 
-def regenerate_license_headers(root_directory: str, mode: str) -> None:
+def regenerate_license_headers(root_directory: str) -> None:
     """
     «Recorre el directorio» «root_directory» y procesa cada archivo fuente con extensión «.cs» y «.py».
-    Dependiendo del «mode» especificado:
-      - "insert-only": Solo inserta la cabecera si no está presente.
-      - "full-regeneration": Reemplaza la cabecera si está desactualizada.
+    - Inserta la cabecera si no está presente.
+    - Reemplaza la cabecera si está desactualizada.
 
     Argumentos:
         «root_directory» (str): Directorio raíz desde donde se inicia la búsqueda recursiva.
-        «mode» (str): Modo de operación ("insert-only" o "full-regeneration").
     """
     # Directorios a excluir (carpetas de compilación o entornos virtuales).
     excluded_dirs = {"obj", "bin", "venv", "env", "__pycache__"}
 
+    files_updated = 0
+    files_with_updated_license = 0
+    files_with_outdated_license = 0
+    files_without_license = 0
+
     # Recorre recursivamente el directorio raíz.
     for current_dir, subdirs, files in os.walk(root_directory):
+
         # Excluye directorios irrelevantes
         subdirs[:] = [d for d in subdirs if d not in excluded_dirs]
 
@@ -239,65 +243,51 @@ def regenerate_license_headers(root_directory: str, mode: str) -> None:
             file_updated = False
             updated_content = ""
 
-            if existing_header is None:
-                # No existe cabecera: se inserta la nueva cabecera.
-                print(f"➕ Insertando «License Header» en «{relative_file_path}».")
+            # Determina si es necesario insertar, actualizar o conservar la cabecera de licencia.
+            # Se verifica si la cabecera existente es None o si la cabecera existente es diferente de la nueva, ignorando espacios innecesarios al inicio y al final.
+            is_new_header = existing_header is None
+            header_needs_update = is_new_header or existing_header.strip() != new_license_header.strip()
+
+            if header_needs_update:
+                # Si es necesario actualizar la cabecera, se asigna la acción adecuada:
+                # - "Insertando" si es una nueva cabecera (es decir, no hay cabecera existente),
+                # - "Regenerando" si la cabecera existente debe ser reemplazada por una nueva.
+                action = "Insertando" if is_new_header else "Regenerando"
+                print(f"➕ {action} «License Header» en «{relative_file_path}».")
+                
+                # Se actualiza el contenido del archivo concatenando las líneas preservadas, la nueva cabecera de licencia,
+                # un salto de línea, y el contenido original del archivo.
                 updated_content = "".join(preserved_lines) + new_license_header + "\n" + content
-                file_updated = True
+                file_updated = True  # Se marca que el archivo fue actualizado.
+
+                # Actualiza los contadores de archivos según si la cabecera es nueva o estaba desactualizada.
+                if is_new_header:
+                    # Si la cabecera es nueva, incrementa el contador de archivos sin cabecera de licencia.
+                    files_without_license += 1  # Archivo sin cabecera de licencia.
+                else:
+                    # Si la cabecera estaba desactualizada, incrementa el contador de archivos con cabecera de licencia desactualizada.
+                    files_with_outdated_license += 1  # Archivo con cabecera de licencia desactualizada.
             else:
-                if mode == "insert-only":
-                    # En modo 'insert-only', si la cabecera ya existe, no se realiza ninguna modificación.
-                    print(f"✔️ El «License Header» en «{relative_file_path}» ya está presente (modo insert-only)")
-                    file_updated = False
-                elif mode == "full-regeneration":
-                    # En modo 'full-regeneration', se regenera la cabecera solo si la existente difiere de la nueva.
-                    if existing_header.strip() == new_license_header.strip():
-                        print(f"✔️ El «License Header» en «{relative_file_path}» se encuentra actualizado.")
-                        file_updated = False
-                    else:
-                        print(f"🔄 Regenerando «License Header» en «{relative_file_path}».")
-                        updated_content = "".join(preserved_lines) + new_license_header + "\n" + content
-                        file_updated = True
+                # Si la cabecera ya está actualizada (es decir, no necesita cambios), 
+                # se incrementa el contador de archivos que ya tienen la cabecera de licencia actualizada.
+                files_with_updated_license += 1  # Archivo con cabecera de licencia actualizada.
 
             # Se sobrescribe el archivo únicamente si se realizó alguna modificación.
             if file_updated:
                 try:
                     with open(full_file_path, "w", encoding="utf-8") as target_file:
                         target_file.write(updated_content)
+                    files_updated += 1
                 except Exception as write_error:
                     print(f"❌ No se pudo escribir en {relative_file_path}: {write_error}")
 
-def parse_arguments():
-    """
-    «Parsea y valida los argumentos de línea de comando» para el script.
-
-    Este método configura el argumento «mode», que determina el comportamiento del script
-    al procesar las cabeceras de licencia en los archivos fuente.
-
-    Argumentos:
-        --mode (str): Define el modo de operación del script:
-            - «insert-only»: Solo inserta la cabecera de licencia en archivos que aún no la contienen.
-                             No modifica las cabeceras ya existentes.
-            - «full-regeneration»: Inserta la cabecera en archivos sin ella y reemplaza las cabeceras
-                                   desactualizadas en aquellos archivos que ya la contienen.
-
-    Retorna:
-        «argparse.Namespace»: Objeto que contiene el valor del argumento «mode».
-                                Se accede a este valor mediante «args.mode».
-    """
-    parser = argparse.ArgumentParser(
-        description="Regenera o inserta la cabecera de licencia en archivos fuente (.cs y .py)."
-    )
-    
-    parser.add_argument(
-        "--mode",
-        choices=["insert-only", "full-regeneration"],
-        default="insert-only",
-        help=("Modo de operación: 'insert-only' solo agrega la cabecera en archivos sin ella; "
-              "'full-regeneration' reemplaza cabeceras desactualizadas y agrega en archivos sin ella.")
-    )
-    
-    return parser.parse_args()
+    if (files_updated > 0):
+        print()
+    print("📊 Resumen del proceso:")
+    print(f"✔️  Archivos con licencia actualizada: {files_with_updated_license}")
+    print(f"🔄 Archivos con licencia desactualizada: {files_with_outdated_license}")
+    print(f"➕ Archivos sin licencia: {files_without_license}")
+    print(f"✅ Total de archivos modificados: {files_updated}")
 
 if __name__ == "__main__":
     # Obtiene el directorio del script actual.
@@ -305,12 +295,15 @@ if __name__ == "__main__":
 
     # Define el directorio raíz como la carpeta padre del script actual.
     root_dir = os.path.abspath(os.path.join(script_directory, os.pardir))
-
-    # Parsea los argumentos de línea de comando.
-    args = parse_arguments()
+    
+    # Imprime un salto de línea para separar el mensaje de inicio.
+    print()
     
     # Ejecuta la regeneración/inserción de cabeceras de licencia.
-    regenerate_license_headers(root_dir, args.mode)
+    regenerate_license_headers(root_dir)
     
+    # Imprime un salto de línea para separar el mensaje de finalización.
+    print()
+
     # Mensaje de confirmación de finalización.
     print("✅ La regeneración de las «License Header's» en los archivos del código fuente ha finalizado correctamente.")
