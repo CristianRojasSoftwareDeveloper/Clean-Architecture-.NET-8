@@ -7,7 +7,7 @@ Implementación avanzada de Clean Architecture en .NET 8. Su propósito es servi
 **Cristian Rojas Arredondo**  
 Licenciado en Ingeniería Informática (2020)  
 Universidad de Valparaíso, Chile  
-Contacto: cristian.rojas.software.developer@gmail.com
+Contacto: cristian.rojas.software.engineer@gmail.com
 
 ## Licencia y distribución
 
