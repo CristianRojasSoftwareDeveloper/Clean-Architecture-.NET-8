@@ -124,7 +124,12 @@ namespace API {
         /// <summary>
         /// Obtiene el servicio de persistencia de datos, instanciado a partir de la colección de repositorios configurada.
         /// </summary>
-        public IUnitOfWork UnitOfWork => new UnitOfWork_EntityFramework(DbContext, InitializeRepositoryCollection(DbContext));
+        public IUnitOfWork UnitOfWork {
+            get {
+                var applicationDbContext = DbContext;
+                return new UnitOfWork_EntityFramework(applicationDbContext, InitializeRepositoryCollection(applicationDbContext));
+            }
+        }
 
         /// <summary>
         /// Obtiene el operador encargado de gestionar operaciones relacionadas con usuarios.
@@ -164,8 +169,6 @@ namespace API {
             RoleOperationHandlerFactory = new RoleOperationHandlerFactory();
             PermissionOperationHandlerFactory = new PermissionOperationHandlerFactory();
             SystemLogOperationHandlerFactory = new SystemLogOperationHandlerFactory();
-            // Asegura que la base de datos se encuentre creada y disponible.
-            DbContext.Database.EnsureCreated();
             // Asegura que la base de datos se encuentre creada y disponible, usando la clase auxiliar que evita reintentos de inicialización.
             DatabaseInitializer.EnsureCreated(_applicationConfiguration);
         }
